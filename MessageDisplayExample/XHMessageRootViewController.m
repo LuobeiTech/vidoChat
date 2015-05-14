@@ -1,0 +1,101 @@
+
+#import "XHMessageRootViewController.h"
+
+#import "XHDemoWeChatMessageTableViewController.h"
+#import "XHFoundationCommon.h"
+
+#import "UIView+XHBadgeView.h"
+@interface XHMessageRootViewController ()
+
+@end
+
+@implementation XHMessageRootViewController
+
+#pragma mark - Action
+
+- (void)enterMessage {
+    XHDemoWeChatMessageTableViewController *demoWeChatMessageTableViewController = [[XHDemoWeChatMessageTableViewController alloc] init];
+    [self.navigationController pushViewController:demoWeChatMessageTableViewController animated:YES];
+}
+
+- (void)enterNewsController {
+//    XHNewsTableViewController *newsTableViewController = [[XHNewsTableViewController alloc] init];
+//    [self pushNewViewController:newsTableViewController];
+}
+
+#pragma mark - Life Cycle
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    NSMutableArray *dataSource = [[NSMutableArray alloc] initWithObjects:@"请问你现在在哪里啊？我在大连高新园区",  nil];
+    self.dataSource = dataSource;
+    
+    [self.view addSubview:self.tableView];
+    [self.tableView setTableFooterView:[[UIView alloc] init]];
+    AppDelegate* myDelegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
+    
+    myDelegate.nSocket = [[SYNNetSocket alloc] init];
+    
+    [myDelegate.nSocket connectServer];
+//    AppDelegate* myDelegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
+    
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - UITableView DataSource
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    static NSString *cellIdentifier = @"cellIdentifier";
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+    if (!cell) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:cellIdentifier];
+        cell.textLabel.font = [UIFont systemFontOfSize:15];
+        
+        cell.detailTextLabel.font = [UIFont systemFontOfSize:12];
+        
+    }
+    if (indexPath.row < self.dataSource.count) {
+        cell.textLabel.text = (indexPath.row % 2) ? @"发送方" : @"接收方";
+        cell.detailTextLabel.text = self.dataSource[indexPath.row];
+        cell.imageView.image = [UIImage imageNamed:@"avator"];
+    }
+    
+//    cell.imageView.badgeViewFrame = CGRectMake(40, 0, 10, 10);
+//    cell.imageView.badgeView.textColor = [UIColor whiteColor];
+//    cell.imageView.badgeView.badgeColor = [UIColor redColor];
+//    cell.imageView.badgeView.text = @" ";
+    [cell.imageView setupCircleBadge];
+    
+    
+    if (indexPath.row == 4) {
+        cell.detailTextLabel.textColor = [UIColor colorWithRed:0.097 green:0.633 blue:1.000 alpha:1.000];
+    } else {
+        cell.detailTextLabel.textColor = [UIColor grayColor];
+    }
+    
+    return cell;
+}
+
+#pragma mark - UITableView Delegate
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return 50;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+//    if (!indexPath.row) {
+//        [self enterNewsController];
+//    } else {
+        [self enterMessage];
+//    }
+}
+
+@end
